@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HR Compliance Tracker</title>
+<meta name="description" content="Download HR Compliance Tracker for Mac or Windows. Federal and state employment law, searchable and kept up to date.">
+<style>
+:root{--bg:#f5f6f8;--panel:#fff;--text:#1d2330;--muted:#5d6678;--line:#e1e4ea;--accent:#2457c5;--accent-soft:#e8eefc;--amber:#9a5b00;--amber-soft:#fdf0dc}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14171d;--panel:#1c2029;--text:#e7eaf0;--muted:#9aa3b5;--line:#2c3240;--accent:#7aa2ff;--accent-soft:#232c42;--amber:#f0b25a;--amber-soft:#3a2c14}}
+:root[data-theme="dark"]{--bg:#14171d;--panel:#1c2029;--text:#e7eaf0;--muted:#9aa3b5;--line:#2c3240;--accent:#7aa2ff;--accent-soft:#232c42;--amber:#f0b25a;--amber-soft:#3a2c14}
+*{box-sizing:border-box}
+body{margin:0;font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text)}
+main{max-width:860px;margin:0 auto;padding:40px 16px 60px}
+h1{font-size:30px;margin:0 0 6px}
+h2{font-size:19px;margin:0 0 10px}
+p{margin:0 0 12px}
+a{color:var(--accent)}
+.lead{color:var(--muted);font-size:17px;margin-bottom:28px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:18px}
+.panel.mine{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+.btn{display:inline-block;padding:11px 18px;border-radius:9px;background:var(--accent);color:#fff;text-decoration:none;font-weight:600}
+.btn.alt{background:var(--panel);color:var(--accent);border:1px solid var(--accent)}
+.small{font-size:14px;color:var(--muted)}
+ol{margin:6px 0 0;padding-left:22px}
+li{margin:4px 0}
+.note{background:var(--amber-soft);color:var(--text);border-radius:8px;padding:10px 12px;font-size:14px;margin-top:12px}
+.tag{display:inline-block;font-size:12px;font-weight:600;padding:1px 8px;border-radius:99px;background:var(--accent-soft);color:var(--accent);margin-left:6px;vertical-align:middle}
+details summary{cursor:pointer;font-weight:600}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<main>
+  <h1>HR Compliance Tracker</h1>
+  <p class="lead">Federal and state employment laws in one searchable app: minimum wage, overtime, breaks, leave,
+    posters and record keeping for the states where you have employees. It checks official sources for changes every day.</p>
+  <p class="small" id="version">Latest version: loading…</p>
+
+  <div class="panel" id="mac">
+    <h2>Mac <span class="tag hidden" id="mac-tag">Your computer</span></h2>
+    <div class="row">
+      <a class="btn" id="dl-arm" href="#">Download for Apple Silicon (M1 to M4)</a>
+      <a class="btn alt" id="dl-intel" href="#">Download for Intel Mac</a>
+    </div>
+    <p class="small">Not sure which Mac you have? Click the Apple menu, then <b>About This Mac</b>. "Chip: Apple M…" means Apple Silicon. "Processor: Intel" means Intel. Needs macOS 11 or later.</p>
+    <details open>
+      <summary>Installing on a Mac</summary>
+      <ol>
+        <li>Open the downloaded file and drag <b>HR Compliance Tracker</b> into the <b>Applications</b> folder.</li>
+        <li>Open it from Applications.</li>
+      </ol>
+      <div class="note" id="mac-unsigned">
+        <b>If your Mac says it can't check the app for malicious software:</b> this app is not yet registered with Apple,
+        so the first launch needs one extra step.
+        <ol>
+          <li>Click <b>Done</b> (or <b>OK</b>) on the message.</li>
+          <li>Open <b>System Settings</b>, then <b>Privacy &amp; Security</b>.</li>
+          <li>Scroll down to the message about HR Compliance Tracker and click <b>Open Anyway</b>.</li>
+          <li>Enter your Mac password, then click <b>Open</b>. You only do this once.</li>
+        </ol>
+      </div>
+    </details>
+  </div>
+
+  <div class="panel" id="win">
+    <h2>Windows <span class="tag hidden" id="win-tag">Your computer</span></h2>
+    <div class="row"><a class="btn" id="dl-win" href="#">Download for Windows 10 or 11</a></div>
+    <details>
+      <summary>Installing on Windows</summary>
+      <ol>
+        <li>Open the downloaded <b>Setup</b> file and click <b>Install</b>, then <b>Finish</b>. No administrator rights needed.</li>
+        <li>If a blue "Windows protected your PC" box appears, click <b>More info</b>, then <b>Run anyway</b>.</li>
+      </ol>
+    </details>
+  </div>
+
+  <div class="panel" id="phone">
+    <h2>iPhone and iPad</h2>
+    <p>Use the free web version: the same laws, state comparisons and compliance checklist, refreshed every day.</p>
+    <div class="row"><a class="btn" href="app/">Open the phone version</a></div>
+    <details open>
+      <summary>Put it on your Home Screen</summary>
+      <ol>
+        <li>Open this page in <b>Safari</b> and tap <b>Open the phone version</b>.</li>
+        <li>Tap the <b>Share</b> button (the square with an arrow pointing up).</li>
+        <li>Scroll down and tap <b>Add to Home Screen</b>, then <b>Add</b>.</li>
+      </ol>
+      <p class="small">It then opens from its own icon, like an app. Your states, checklist and saved items stay on your phone. It also works on Android phones (Chrome menu, then Add to Home screen) and in any web browser.</p>
+    </details>
+  </div>
+
+  <p class="small">For information only, not legal advice. Each record links to its official source.
+    <a id="all" href="#">All versions</a></p>
+</main>
+<script>
+// Served from GitHub Pages at https://OWNER.github.io/REPO/, so the repo comes from the address.
+const owner = location.hostname.split(".")[0];
+const repo = location.pathname.split("/").filter(Boolean)[0] || "";
+const releases = `https://github.com/${owner}/${repo}/releases`;
+document.getElementById("all").href = releases;
+["dl-arm", "dl-intel", "dl-win"].forEach(id => document.getElementById(id).href = releases + "/latest");
+
+const ua = navigator.userAgent;
+const mine = /iPhone|iPad|iPod|Android/.test(ua) ? "" : /Windows/.test(ua) ? "win" : /Macintosh|Mac OS X/.test(ua) ? "mac" : "";
+if (/iPhone|iPad|iPod/.test(ua)) document.querySelector("main").insertBefore(document.getElementById("phone"), document.getElementById("mac"));
+if (mine) {
+  document.getElementById(mine).classList.add("mine");
+  document.getElementById(mine + "-tag").classList.remove("hidden");
+  if (mine === "win") document.querySelector("main").insertBefore(document.getElementById("win"), document.getElementById("mac"));
+}
+
+fetch(`https://api.github.com/repos/${owner}/${repo}/releases/latest`)
+  .then(r => r.ok ? r.json() : Promise.reject(r.status))
+  .then(rel => {
+    const find = re => (rel.assets || []).find(a => re.test(a.name));
+    const set = (id, a) => { if (a) document.getElementById(id).href = a.browser_download_url; };
+    set("dl-arm", find(/apple-silicon\.dmg$/));
+    set("dl-intel", find(/intel\.dmg$/));
+    set("dl-win", find(/Setup.*\.exe$/));
+    const when = rel.published_at ? new Date(rel.published_at).toLocaleDateString(undefined, {year: "numeric", month: "long", day: "numeric"}) : "";
+    document.getElementById("version").textContent = `Latest version: ${rel.tag_name.replace(/^v/, "")}${when ? ", released " + when : ""}`;
+    if (/signed/i.test(rel.body || "") && /notarized/i.test(rel.body || "")) document.getElementById("mac-unsigned").style.display = "none";
+  })
+  .catch(() => { document.getElementById("version").innerHTML = `See <a href="${releases}">all versions</a>.`; });
+</script>
+</body>
+</html>

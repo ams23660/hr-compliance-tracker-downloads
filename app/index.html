@@ -1,0 +1,736 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HR Compliance Tracker</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="HR Compliance">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#2457c5">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<script src="static-api.js"></script>
+
+<style>
+:root{--bg:#f5f6f8;--panel:#fff;--text:#1d2330;--muted:#5d6678;--line:#e1e4ea;--accent:#2457c5;--accent-soft:#e8eefc;
+  --green:#1b7f4b;--green-soft:#e3f4ea;--amber:#9a5b00;--amber-soft:#fdf0dc;--red:#b42318;--red-soft:#fde8e6;--gray-soft:#eef0f3;--mark:#fff1a8}
+@media (prefers-color-scheme:dark){:root{--bg:#14171d;--panel:#1c2029;--text:#e7eaf0;--muted:#9aa3b5;--line:#2c3240;--accent:#7aa2ff;--accent-soft:#232c42;
+  --green:#5fd39a;--green-soft:#173326;--amber:#f0b25a;--amber-soft:#3a2c14;--red:#ff8a80;--red-soft:#3d1f1d;--gray-soft:#262b36;--mark:#5a4d10}}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text)}
+a{color:var(--accent)}
+header{background:var(--panel);border-bottom:1px solid var(--line);padding:12px 20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+header h1{font-size:18px;margin:0;white-space:nowrap}
+#q{flex:1;min-width:200px;padding:9px 12px;border:1px solid var(--line);border-radius:8px;font-size:15px;background:var(--bg);color:var(--text)}
+button{font:inherit;padding:7px 13px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--text);cursor:pointer}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button.link{border:0;background:none;color:var(--accent);padding:0}
+button:disabled{opacity:.5;cursor:default}
+#profile-chip{font-size:13px;color:var(--muted)}
+nav{display:flex;gap:2px;padding:0 16px;background:var(--panel);border-bottom:1px solid var(--line);overflow-x:auto;white-space:nowrap}
+nav a{padding:10px 12px;color:var(--muted);text-decoration:none;border-bottom:2px solid transparent}
+nav a.on{color:var(--accent);border-color:var(--accent)}
+main{max-width:1300px;margin:0 auto;padding:20px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:16px}
+.panel h2{font-size:16px;margin:0 0 10px}
+.grid{display:grid;gap:16px}
+.cols-2{grid-template-columns:1fr 1fr}
+.search-layout{display:grid;grid-template-columns:270px 1fr;gap:16px}
+@media (max-width:900px){.cols-2,.search-layout{grid-template-columns:1fr}main{padding:12px}}
+label{display:block;font-size:13px;color:var(--muted);margin:12px 0 4px}
+select,input[type=text],input[type=password],input[type=url],input[type=number],textarea{width:100%;padding:8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--text);font:inherit}
+.check{display:flex;gap:6px;align-items:center;color:var(--text);font-size:14px;margin-top:10px}
+.muted{color:var(--muted)}.small{font-size:13px}
+.pill{display:inline-block;padding:1px 8px;border-radius:99px;background:var(--accent-soft);font-size:12px;white-space:nowrap}
+.badge{display:inline-block;padding:1px 8px;border-radius:6px;font-size:12px;font-weight:600;white-space:nowrap}
+.b-stricter{background:var(--amber-soft);color:var(--amber)}
+.b-same{background:var(--gray-soft);color:var(--muted)}
+.b-federal{background:var(--accent-soft);color:var(--accent)}
+.b-lower{background:var(--red-soft);color:var(--red)}
+.b-info{background:var(--gray-soft);color:var(--text)}
+.b-ai{background:#ede7fb;color:#4a2a8c;margin-left:4px}
+@media (prefers-color-scheme: dark){.b-ai{background:#3a2d5c;color:#d9cdfb}}
+blockquote.quote{margin:6px 0;padding:4px 8px;border-left:3px solid var(--line);font-size:12px;color:var(--muted)}
+.b-untracked{background:transparent;color:var(--muted);border:1px dashed var(--line)}
+.b-new{background:var(--green-soft);color:var(--green)}
+.b-updated{background:var(--amber-soft);color:var(--amber)}
+.result{padding:13px 0;border-bottom:1px solid var(--line);display:flex;gap:10px}
+.result:last-child{border-bottom:0}
+.result .main{flex:1;min-width:0;cursor:pointer}
+.result h3{margin:0 0 4px;font-size:15.5px;color:var(--accent)}
+.meta{font-size:12.5px;color:var(--muted);display:flex;gap:8px 12px;flex-wrap:wrap;align-items:center}
+.date{color:var(--text);font-weight:600}
+.snip{margin:6px 0 0;font-size:14px}
+mark{background:var(--mark);color:inherit}
+.star{border:0;background:none;font-size:20px;line-height:1;color:var(--muted);padding:0 4px;cursor:pointer}
+.star.on{color:#e0a100}
+.summary-row{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;color:var(--muted);font-size:14px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.card{border:1px solid var(--line);border-radius:10px;padding:14px;background:var(--panel)}
+.card h3{margin:0 0 8px;font-size:16px}
+.kv{display:flex;justify-content:space-between;gap:8px;font-size:14px;padding:3px 0;border-bottom:1px dashed var(--line)}
+.kv:last-of-type{border-bottom:0}
+.big{font-size:22px;font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td,th{text-align:left;padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:13px;color:var(--muted);font-weight:600}
+.cmp-wrap{overflow-x:auto}
+.cmp td{min-width:190px}
+.cmp td:first-child{min-width:140px;font-weight:600}
+.cmp .cell-text{display:block;margin-top:4px}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{border:1px solid var(--line);border-radius:6px;padding:3px 7px;font-size:12.5px;cursor:pointer;background:var(--panel);user-select:none}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.list-item{padding:9px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.list-item:last-child{border-bottom:0}
+.law-chip{display:inline-block;margin:3px;padding:3px 8px;border-radius:6px;font-size:13px;background:var(--green-soft);color:var(--green);cursor:pointer}
+.law-chip.no{background:var(--gray-soft);color:var(--muted)}
+#drawer{position:fixed;top:0;right:0;height:100%;width:min(660px,100%);background:var(--panel);border-left:1px solid var(--line);box-shadow:-8px 0 24px rgba(0,0,0,.14);padding:20px 22px;overflow:auto;transform:translateX(105%);transition:transform .2s;z-index:10}
+#drawer.open{transform:none}
+#drawer pre{white-space:pre-wrap;font:13px/1.5 ui-monospace,Menlo,monospace;background:var(--bg);padding:10px;border-radius:6px}
+.body{white-space:pre-wrap;font-size:14px}
+.drawer-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.pager{display:flex;gap:8px;justify-content:center;margin-top:14px}
+.disclaimer{font-size:12px;color:var(--muted);margin-top:14px}
+.hidden{display:none !important}
+html.static .server-only{display:none !important}
+html:not(.static) .static-only{display:none !important}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid2 label{display:flex;flex-direction:column;gap:4px;font-size:13px}
+@media (max-width:700px){.grid2{grid-template-columns:1fr}}
+.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;margin:6px 0 12px}
+#filters>summary{cursor:pointer;font-weight:600;list-style:none}
+#filters>summary::-webkit-details-marker{display:none}
+@media (min-width:901px){#filters>summary{display:none}}
+@media print{header,nav,.drawer-actions,#close{display:none}#drawer{position:static;transform:none;box-shadow:none;width:100%;border:0}main{display:none}
+  body.print-dash main{display:block}body.print-dash #drawer,body.print-dash section:not(#tab-dashboard),.no-print{display:none !important}
+  body.print-dash .panel,body.print-dash .card,body.print-dash .tile{break-inside:avoid}}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin-bottom:16px}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.tile .label{font-size:12.5px;color:var(--muted)}
+.tile .value{font-size:22px;font-weight:700;line-height:1.25;margin:2px 0}
+.tile .sub{font-size:12.5px;color:var(--muted)}
+.tile.warn{border-color:var(--amber)}
+.bar{height:6px;border-radius:3px;background:var(--gray-soft);overflow:hidden;margin-top:6px}
+.bar>span{display:block;height:100%;background:var(--green)}
+.dash-main{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:16px;align-items:start}
+@media (max-width:900px){.dash-main{grid-template-columns:1fr}}
+.cl-details>summary{cursor:pointer;list-style:none}.cl-details>summary::-webkit-details-marker{display:none}
+.cl-details>summary>span:first-child::before{content:"▸ ";display:inline-block;width:1em}.cl-details[open]>summary>span:first-child::before{content:"▾ "}
+.cl-group{margin:12px 0 4px;padding:6px 0;border-bottom:1px solid var(--line);font-size:13px;font-weight:600;color:var(--muted);display:flex;justify-content:space-between}
+.cl-item{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-size:14px;align-items:flex-start}
+.cl-item input{margin-top:3px;width:16px;height:16px;flex:none}
+.cl-item.done .cl-text{color:var(--muted);text-decoration:line-through}
+.cl-item .cl-sub{font-size:12.5px;color:var(--muted)}
+.soon{color:var(--amber);font-weight:600}
+.is-new{border-left:3px solid var(--green);padding-left:8px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{border:0;border-radius:0;padding:4px 10px;font-size:13px}
+.seg button.on{background:var(--accent);color:#fff}
+</style>
+</head>
+<body>
+<header>
+  <h1>HR Compliance Tracker</h1>
+  <input id="q" type="search" placeholder='Search laws and rules, e.g. overtime, "paid sick leave", I-9'>
+  <button class="primary" id="go">Search</button>
+  <button id="refresh" class="server-only" title="Check every source for new and changed items now">Check for updates</button>
+  <button class="link" id="profile-chip">Set up your company</button>
+</header>
+<nav>
+  <a href="#dashboard" data-tab="dashboard" class="on">Dashboard</a>
+  <a href="#search" data-tab="search">Search</a>
+  <a href="#compare" data-tab="compare">Compare states</a>
+  <a href="#upcoming" data-tab="upcoming">Upcoming</a>
+  <a href="#saved" data-tab="saved">Saved</a>
+  <a href="#changes" data-tab="changes">What's new</a>
+  <a href="#watch" data-tab="watch" class="server-only">Watched pages</a>
+  <a href="#sources" data-tab="sources">Sources</a>
+</nav>
+<main>
+  <div class="panel static-only hidden" id="install-tip"><div class="summary-row" style="margin:0;color:var(--text)">
+    <span><b>Add this app to your Home Screen:</b> tap the Share button <span aria-hidden="true">(□↑)</span>, then <b>Add to Home Screen</b>.</span>
+    <button class="link" id="install-close">Dismiss</button></div></div>
+  <!-- DASHBOARD -->
+  <section id="tab-dashboard">
+    <div class="panel" id="setup">
+      <h2>Your company</h2>
+      <p class="muted small">Pick the states where you have employees and your headcount. The dashboard, comparisons and "applies to me" filters use this.</p>
+      <label for="p-company">Company name (optional)</label><input type="text" id="p-company">
+      <label for="p-employees">Number of employees</label><input type="number" id="p-employees" min="1" placeholder="e.g. 45">
+      <label>States where you have employees</label><div class="chips" id="p-states"></div>
+      <p><button class="primary" id="p-save">Save and show my dashboard</button> <button id="p-cancel" class="hidden">Cancel</button> <span class="small" id="p-msg" style="color:var(--red)"></span></p>
+      <p class="small muted">After you save, the dashboard shows your states' minimum wages and rules, a compliance checklist (posters, records to keep, yearly deadlines), upcoming dates and recent changes.</p>
+    </div>
+    <div id="dash" class="hidden">
+      <div class="summary-row"><h2 style="margin:0;font-size:18px;color:var(--text)" id="dash-title"></h2>
+        <span class="no-print"><button id="dash-print">Print summary</button> <button class="link" id="edit-profile">Edit company profile</button></span></div>
+      <p class="small muted" id="dash-asof" style="margin:0 0 12px"></p>
+      <div class="tiles" id="tiles"></div>
+      <div class="cards" id="state-cards"></div>
+      <div class="dash-main" style="margin-top:16px">
+        <div class="panel" id="checklist-panel">
+          <div class="summary-row"><h2 style="margin:0">Compliance checklist</h2>
+            <span class="seg no-print" id="cl-filter"><button data-f="open" class="on">To do</button><button data-f="all">All</button></span></div>
+          <p class="small muted" style="margin:4px 0 0">Built from your states and headcount. Tick items as you confirm them; yearly items reset each cycle.</p>
+          <div id="checklist"></div>
+        </div>
+        <div>
+          <div class="panel"><div class="summary-row"><h2 style="margin:0">Coming up</h2><a class="small no-print" id="ics" href="#">Add to my calendar</a></div>
+            <div id="dash-upcoming"></div><p class="small no-print"><a href="#upcoming" data-goto="upcoming">See all upcoming dates</a></p></div>
+          <div class="panel"><div class="summary-row"><h2 style="margin:0">Recent changes</h2><button class="link small no-print" id="mark-reviewed">Mark all as reviewed</button></div>
+            <div id="dash-changes"></div><p class="small no-print"><a href="#changes" data-goto="changes">See all changes</a></p></div>
+        </div>
+      </div>
+      <div class="panel"><h2 id="laws-title">Federal laws by company size</h2>
+        <p class="muted small" id="laws-note"></p><div id="dash-laws"></div></div>
+    </div>
+  </section>
+
+  <!-- SEARCH -->
+  <section id="tab-search" class="hidden">
+    <div class="search-layout">
+      <aside class="panel"><details id="filters" open><summary>Filters</summary>
+        <label for="state">Jurisdiction</label>
+        <select id="state"><option value="">All (federal and every state)</option><option value="MINE">My states</option><option value="US">Federal only</option></select>
+        <label class="check"><input type="checkbox" id="federal" checked> Include federal law with a state</label>
+        <label class="check"><input type="checkbox" id="applies"> Only what applies at my headcount</label>
+        <label for="category">Topic</label><select id="category"><option value="">All topics</option></select>
+        <label for="type">Type</label><select id="type"><option value="">All types</option></select>
+        <label for="days">Changed within</label>
+        <select id="days"><option value="">Any time</option><option value="7">Last 7 days</option><option value="30">Last 30 days</option><option value="90">Last 90 days</option><option value="365">Last year</option></select>
+        <label for="sort">Sort by</label>
+        <select id="sort"><option value="">Best match</option><option value="date">Date enacted / effective (newest)</option><option value="changed">Recently changed</option></select>
+        <p class="disclaimer">For information only, not legal advice. Confirm requirements at the official source linked on each item.</p>
+      </details></aside>
+      <div class="panel">
+        <div class="summary-row"><span id="count"></span><button id="export">Export CSV</button></div>
+        <div id="results"></div>
+        <div class="pager"><button id="prev">Previous</button><button id="next">Next</button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPARE -->
+  <section id="tab-compare" class="hidden">
+    <div class="panel">
+      <h2>How state law differs from federal law</h2>
+      <p class="muted small">Pick up to 4 states. Where state and federal rules differ, employers generally must follow whichever is more protective of the employee.</p>
+      <div class="chips" id="cmp-states"></div>
+      <div class="legend">
+        <span class="badge b-stricter">Stricter than federal</span><span class="badge b-same">Same as federal</span>
+        <span class="badge b-federal">No state rule: federal applies</span><span class="badge b-lower">State below federal</span>
+        <span class="badge b-info">Differs</span><span class="badge b-untracked">Not tracked yet</span><span class="badge b-ai">AI summary, verify</span>
+      </div>
+      <div class="cmp-wrap"><table class="cmp" id="cmp-table"></table></div>
+      <p class="small muted" id="cmp-verified"></p>
+    </div>
+    <div class="grid cols-2" id="cmp-extra"></div>
+  </section>
+
+  <!-- UPCOMING -->
+  <section id="tab-upcoming" class="hidden">
+    <div class="panel">
+      <div class="summary-row"><h2 style="margin:0">Effective dates and comment deadlines</h2>
+        <select id="up-days" style="width:auto"><option value="90">Next 90 days</option><option value="180" selected>Next 6 months</option><option value="365">Next 12 months</option><option value="730">Next 2 years</option></select></div>
+      <p class="muted small">Federal rules taking effect, and proposed rules whose public comment period is closing. Comment periods are your chance to weigh in before a rule is final.</p>
+      <div id="upcoming"></div>
+    </div>
+  </section>
+
+  <!-- SAVED -->
+  <section id="tab-saved" class="hidden">
+    <div class="panel">
+      <div class="summary-row"><h2 style="margin:0">Saved items</h2><button id="export-saved">Export CSV</button></div>
+      <p class="muted small">Star any item to save it here. Add notes in the item's detail panel.</p>
+      <div id="saved"></div>
+    </div>
+  </section>
+
+  <!-- CHANGES -->
+  <section id="tab-changes" class="hidden">
+    <div class="panel">
+      <div class="summary-row"><h2 style="margin:0">What's new and what changed</h2>
+        <label class="check" style="margin:0"><input type="checkbox" id="ch-mine" checked> Only my states and federal</label></div>
+      <p class="muted small">New items found since the first check, and items whose text changed at the source. The first check loads existing laws as a baseline and does not list them here.</p>
+      <div id="changes"></div>
+    </div>
+  </section>
+
+  <!-- WATCH -->
+  <section id="tab-watch" class="hidden">
+    <div class="panel">
+      <h2>Watched pages</h2>
+      <p class="muted small">Every page here is re-checked on each update and flagged when its text changes. Each state's labor department homepage is added automatically.</p>
+      <form id="watchform" class="grid cols-2">
+        <div><label>Jurisdiction</label><select id="w-jur"></select></div>
+        <div><label>Topic</label><select id="w-cat"></select></div>
+        <div><label>Label</label><input type="text" id="w-label" required placeholder="e.g. Illinois Paid Leave for All Workers Act"></div>
+        <div><label>URL</label><input type="url" id="w-url" required placeholder="https://..."></div>
+        <div><button class="primary">Add page</button></div>
+      </form>
+      <table id="watchlist" style="margin-top:12px"></table>
+    </div>
+  </section>
+
+  <!-- SOURCES -->
+  <section id="tab-sources" class="hidden"><div class="panel"><h2>Sources <span class="small muted" id="app-version"></span></h2><p class="small muted static-only" id="static-note"></p><table id="runs"></table></div>
+    <div class="panel server-only" id="ai-panel">
+      <h2>AI research (free)</h2>
+      <p class="small muted">No free government database covers paid sick leave, family and medical leave, or final paycheck rules state by state. With an AI service turned on, the app reads each of your states' official labor department pages, has the AI summarize what they say, and keeps an answer only if the AI quotes a sentence that the app finds word for word on that official page. Answers show in Compare states marked “AI summary, verify”, with the quote and a link to the page. Each state is re-checked monthly.</p>
+      <div class="grid2">
+        <label>AI service<select id="ai-provider">
+          <option value="">Off</option>
+          <option value="gemini">Google Gemini, free tier (recommended)</option>
+          <option value="openai">Groq, free tier (or any OpenAI-compatible service)</option>
+          <option value="ollama">Ollama on this computer (free, private, no key)</option>
+        </select></label>
+        <label>Which states<select id="ai-scope"><option value="mine">My states (from the Dashboard)</option><option value="all">All states (slow on free tiers)</option></select></label>
+        <label id="ai-key-wrap">API key <span class="small muted" id="ai-key-help"></span><input type="password" id="ai-key" autocomplete="off" placeholder=""></label>
+        <label>Model <span class="small muted">(leave blank for the default)</span><input type="text" id="ai-model"></label>
+        <label id="ai-url-wrap" class="hidden">Service address<input type="url" id="ai-url"></label>
+      </div>
+      <p><button id="ai-save" class="primary">Save</button> <button id="ai-test">Test connection</button> <button id="ai-run">Run AI research now</button> <button id="ai-recheck" class="link small">Re-check everything</button></p>
+      <p class="small" id="ai-msg"></p>
+      <p class="small muted">The page text and your questions are sent to the AI service you pick; nothing about your company is sent. Google's free tier may use prompts to improve its products. Ollama keeps everything on this computer. AI summaries can be wrong: always open the source link before acting on one.</p>
+    </div>
+  </section>
+</main>
+
+<aside id="drawer" aria-label="Item details">
+  <div class="drawer-actions"><button id="close">Close</button><button id="d-star">☆ Save</button><button id="d-print">Print</button></div>
+  <div id="detail"></div>
+</aside>
+
+<script>
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt = d => { if (!d) return ""; const x = new Date(d.length === 10 ? d + "T12:00:00" : d); return isNaN(x) ? d : x.toLocaleDateString(undefined, {year:"numeric", month:"short", day:"numeric"}); };
+const api = (p, o) => fetch(p, o).then(r => r.json());
+const post = (p, body) => api(p, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)});
+const TOPICS = ["Wages & Hours","Leave","Breaks & Scheduling","Discrimination & EEO","Workplace Safety","Benefits & Retirement","Labor Relations","Immigration & I-9","Hiring & Background Checks","Privacy","Termination & Layoffs","Unemployment & Workers' Comp","Contractors & Classification","Child Labor","General"];
+const STATUS = {stricter:"Stricter than federal", same:"Same as federal", federal:"Federal applies", lower:"Below federal", info:"Differs", untracked:"Not tracked yet"};
+let META = {states:{}}, PROFILE = {states:[], employees:null, company:""}, offset = 0, CMP = [], CURRENT = null;
+const LIMIT = 25;
+const clip = (t, n) => (t || "").length > n ? t.slice(0, n).replace(/\s+\S*$/, "") + "…" : (t || "");
+const sname = c => c === "US" ? "Federal" : (META.states[c] || c);
+
+/* ---------- dates: show when the law was made, not when we found it ---------- */
+function keyDate(r) {
+  if (r.item_type === "State Requirement" || r.item_type === "Watched Page")
+    return `<span>Verified current <span class="date">${fmt(r.last_checked)}</span></span>`;
+  const parts = [];
+  if (r.enacted_date) parts.push(`<span>Enacted <span class="date">${fmt(r.enacted_date)}</span></span>`);
+  if (r.effective_date) parts.push(`<span>Effective <span class="date">${fmt(r.effective_date)}</span></span>`);
+  if (r.published_date && !r.enacted_date) parts.push(`<span>${r.item_type === "Bill" ? "Last action" : "Published"} <span class="date">${fmt(r.published_date)}</span></span>`);
+  if (r.comments_close_date) parts.push(`<span>Comments due <span class="date">${fmt(r.comments_close_date)}</span></span>`);
+  return parts.join("");
+}
+const wasUpdated = r => r.last_changed && r.first_seen && r.last_changed > r.first_seen;
+const coverage = r => r.min_employees ? `<span>${r.min_employees === 1 ? "All employers" : r.min_employees + "+ employees"}</span>` : "";
+
+function resultHTML(r) {
+  return `<div class="result">
+    <button class="star ${r.saved ? "on" : ""}" data-star="${r.id}" title="${r.saved ? "Remove from saved" : "Save"}">${r.saved ? "★" : "☆"}</button>
+    <div class="main" data-id="${r.id}">
+      <h3>${esc(r.title)}</h3>
+      <div class="meta"><span class="pill">${esc(sname(r.jurisdiction))}</span><span>${esc(r.item_type)}</span><span>${esc(r.category)}</span>
+        ${keyDate(r)}${coverage(r)}${wasUpdated(r) ? `<span class="badge b-updated">Updated ${fmt(r.last_changed)}</span>` : ""}</div>
+      <p class="snip">${r.snippet ? esc(r.snippet).replace(/\[\[/g,"<mark>").replace(/\]\]/g,"</mark>") : esc((r.summary || "").slice(0, 280))}</p>
+      ${r.bookmark_note ? `<p class="small muted">Note: ${esc(r.bookmark_note)}</p>` : ""}
+    </div></div>`;
+}
+
+/* ---------- profile ---------- */
+function renderProfileChip() {
+  const p = PROFILE;
+  $("#profile-chip").textContent = p.states.length || p.employees
+    ? `${p.company ? p.company + " · " : ""}${p.states.join(", ") || "no states"}${p.employees ? " · " + p.employees + " employees" : ""}`
+    : "Set up your company";
+}
+function openSetup(show) {
+  $("#setup").classList.toggle("hidden", !show);
+  $("#dash").classList.toggle("hidden", show);
+  $("#p-cancel").classList.toggle("hidden", !(PROFILE.states.length));
+  $("#p-company").value = PROFILE.company || "";
+  $("#p-employees").value = PROFILE.employees || "";
+  $$("#p-states .chip").forEach(c => c.classList.toggle("on", PROFILE.states.includes(c.dataset.s)));
+}
+
+/* ---------- dashboard ---------- */
+let CHECKLIST = [], CL_FILTER = "open", CL_OPEN = new Set(["Yearly deadlines"]);
+const daysUntil = d => Math.round((new Date(d + "T00:00:00") - new Date(new Date().toDateString())) / 864e5);
+const inDays = d => { const n = daysUntil(d); return n === 0 ? "today" : n === 1 ? "tomorrow" : n < 0 ? `${-n} days ago` : `in ${n} days`; };
+async function loadDashboard() {
+  if (!PROFILE.states.length) return openSetup(true);
+  openSetup(false);
+  $("#dash-title").textContent = (PROFILE.company || "Your company") + (PROFILE.employees ? ` · ${PROFILE.employees} employees` : "");
+  const states = PROFILE.states.join(",");
+  const meta = await api("/api/meta");
+  const reviewed = meta.reviewed_at || "";
+  const [cmp, up, ch, laws, cl] = await Promise.all([
+    api("/api/compare?states=" + states), api(`/api/upcoming?days=180&states=${states}`),
+    api(`/api/changes?limit=50&days=90&states=${states}`), api("/api/search?state=US&type=Law&limit=100"), api("/api/checklist")]);
+  CHECKLIST = cl;
+  const lastCheck = (meta.last_runs || []).map(r => r.finished_at).filter(Boolean).sort().pop();
+  if (meta.built_at) $("#dash-asof").textContent = `Data refreshed automatically every day; last refreshed ${new Date(meta.built_at).toLocaleString()}. For information only, not legal advice.`;
+  else $("#dash-asof").textContent = (lastCheck ? `Sources last checked ${new Date(lastCheck).toLocaleString()}.` : "Sources not checked yet: click “Check for updates”.") +
+    " For information only, not legal advice.";
+
+  /* at-a-glance tiles */
+  const wages = cmp.map(c => ({c, r: c.rows.find(x => x.key === "min_wage")})).map(o => ({...o, v: parseFloat(((o.r.state || "").match(/\$([\d.]+)/) || [])[1] || "7.25")}));
+  const top = wages.sort((a, b) => b.v - a.v)[0];
+  const unseen = ch.filter(x => !reviewed || x.changed_at > reviewed);
+  const nextUp = up[0];
+  const open = cl.filter(i => !i.done), dueSoon = open.filter(i => i.due && daysUntil(i.due) <= 60);
+  const pct = cl.length ? Math.round(100 * (cl.length - open.length) / cl.length) : 0;
+  $("#tiles").innerHTML = [
+    `<div class="tile"><div class="label">Highest minimum wage in your states</div><div class="value">$${top.v.toFixed(2)}</div><div class="sub">${esc(top.c.name)}${wages.length > 1 ? ` · lowest $${wages[wages.length - 1].v.toFixed(2)} ${esc(wages[wages.length - 1].c.name)}` : ""}</div></div>`,
+    `<div class="tile ${nextUp && daysUntil(nextUp.due) <= 30 ? "warn" : ""}"><div class="label">Next effective date or deadline</div><div class="value">${nextUp ? fmt(nextUp.due) : "None"}</div><div class="sub">${nextUp ? esc(clip(nextUp.title, 70)) + " · " + inDays(nextUp.due) : "Nothing in the next 6 months"}</div></div>`,
+    `<div class="tile ${unseen.length ? "warn" : ""}"><div class="label">Changes you haven't reviewed</div><div class="value">${unseen.length}</div><div class="sub">${reviewed ? "since " + fmt(reviewed) : "in the last 90 days"}</div></div>`,
+    `<div class="tile ${dueSoon.length ? "warn" : ""}"><div class="label">Checklist</div><div class="value">${cl.length - open.length} of ${cl.length} done</div><div class="bar"><span style="width:${pct}%"></span></div><div class="sub" style="margin-top:4px">${dueSoon.length ? `${dueSoon.length} due within 60 days` : open.length ? `${open.length} to confirm` : "All confirmed"}</div></div>`
+  ].join("");
+
+  /* state cards */
+  const LEAVE = {paid_sick: "Paid sick leave", family_leave: "Family leave", final_pay: "Final paycheck"};
+  $("#state-cards").innerHTML = cmp.map(c => {
+    const r = Object.fromEntries(c.rows.map(x => [x.key, x]));
+    const line = (label, row) => `<div class="kv"><span>${label}</span><span><span class="badge b-${row.status}">${STATUS[row.status]}</span>${row.ai ? `<span class="badge b-ai" title="AI summary of an official page: verify">AI</span>` : ""}</span></div>`;
+    const recent = ch.filter(x => x.jurisdiction === c.state).length;
+    const tracked = c.rows.filter(x => x.status !== "untracked").length;
+    return `<div class="card"><h3>${esc(c.name)}</h3>
+      <div class="muted small">Minimum wage</div><div class="big">${esc((r.min_wage.state || "").split(" (")[0].slice(0, 40) || "–")}</div>
+      <div class="small muted" style="margin-bottom:8px">${r.min_wage.status === "stricter" ? esc((r.min_wage.note.match(/^\$[\d.]+ above federal/) || [""])[0]) : r.min_wage.status === "same" ? "Same as federal $7.25" : "Federal $7.25 applies"}</div>
+      ${line("Overtime", r.overtime)}${line("Meal breaks", r.meal)}${line("Rest breaks", r.rest)}${line("Tipped wage", r.tipped)}${line("Pay frequency", r.payday)}
+      ${Object.entries(LEAVE).map(([k, l]) => line(l, r[k])).join("")}
+      <p class="small muted" style="margin:8px 0 0">${tracked} of ${c.rows.length} topics tracked${recent ? ` · <b>${recent}</b> change${recent > 1 ? "s" : ""} in 90 days` : ""}</p>
+      <p class="small no-print" style="margin:4px 0 0"><a href="#compare" data-compare="${c.state}">Compare with federal</a> · <a href="#search" data-statesearch="${c.state}">All ${esc(c.state)} items</a>${c.contact.website ? ` · <a href="${esc(c.contact.website)}" target="_blank" rel="noopener">State labor dept</a>` : ""}</p></div>`;
+  }).join("");
+
+  renderChecklist();
+  $("#dash-upcoming").innerHTML = up.slice(0, 6).map(u => upHTML(u)).join("") || `<p class="muted small">Nothing scheduled in the next 6 months.</p>`;
+  $("#ics").href = "/api/upcoming.ics?states=" + states;
+  const shown = (unseen.length ? unseen : ch).slice(0, 6);
+  $("#dash-changes").innerHTML = shown.map(c => changeHTML(c, !reviewed || c.changed_at > reviewed)).join("") +
+    (unseen.length > 6 ? `<p class="small muted">${unseen.length - 6} more not reviewed.</p>` : "") ||
+    `<p class="muted small">No changes in the last 90 days. The app checks for updates every day while it is open.</p>`;
+  $("#mark-reviewed").classList.toggle("hidden", !unseen.length);
+
+  const n = PROFILE.employees;
+  $("#laws-title").textContent = n ? `Federal laws that apply at ${n} employees` : "Federal laws by company size";
+  $("#laws-note").textContent = n ? "Green laws cover a company of your size. Gray ones start at a larger headcount. Click any law for details, posters and record-keeping rules." : "Add your headcount to see which federal laws cover you.";
+  $("#dash-laws").innerHTML = laws.results.sort((a, b) => (a.min_employees || 0) - (b.min_employees || 0)).map(l => {
+    const ok = !n || !l.min_employees || l.min_employees <= n;
+    return `<span class="law-chip ${ok ? "" : "no"}" data-id="${l.id}" title="${esc(l.coverage)}">${esc(l.title.replace(/\s*\(.*?\)/, ""))}${l.min_employees > 1 ? ` · ${l.min_employees}+` : ""}</span>`;
+  }).join("");
+}
+function renderChecklist() {
+  const groups = {};
+  CHECKLIST.forEach(i => (groups[i.group] = groups[i.group] || []).push(i));
+  const order = g => g.startsWith("Yearly") ? 0 : g.startsWith("Posters") ? 1 : g.startsWith("Records") ? 3 : 2;
+  $("#checklist").innerHTML = Object.keys(groups).sort((a, b) => order(a) - order(b)).map(g => {
+    const all = groups[g], list = CL_FILTER === "open" ? all.filter(i => !i.done) : all;
+    const left = all.filter(i => !i.done).length;
+    if (!list.length) return `<div class="cl-group"><span>${esc(g)}</span><span class="b-new badge">All done</span></div>`;
+    const soonCount = all.filter(i => i.due && !i.done && daysUntil(i.due) <= 60).length;
+    return `<details class="cl-details" data-g="${esc(g)}" ${CL_OPEN.has(g) || soonCount ? "open" : ""}><summary class="cl-group"><span>${esc(g)}</span><span>${soonCount ? `<span class="soon">${soonCount} due soon</span> · ` : ""}${all.length - left} of ${all.length} done</span></summary>` + list.map(i => {
+      const soon = i.due && !i.done && daysUntil(i.due) <= 60;
+      return `<label class="cl-item ${i.done ? "done" : ""}"><input type="checkbox" data-cl="${esc(i.id)}" ${i.done ? "checked" : ""}>
+        <span><span class="cl-text">${esc(i.text)}</span>
+        ${i.due ? `<span class="cl-sub ${soon ? "soon" : ""}"> · next due ${fmt(i.due)} (${inDays(i.due)})</span>` : ""}
+        ${i.detail ? `<div class="cl-sub">${esc(clip(i.detail, 180))}</div>` : ""}
+        <div class="cl-sub">${i.done ? `Confirmed ${fmt(i.done_at)}` : ""}${i.url ? `${i.done ? " · " : ""}<a href="${esc(i.url)}" target="_blank" rel="noopener">Official source</a>` : ""}${i.item_id ? `${i.done || i.url ? " · " : ""}<button class="link small" data-id="${i.item_id}">Details</button>` : ""}</div></span></label>`;
+    }).join("") + "</details>";
+  }).join("");
+  $$("#checklist details").forEach(d => d.addEventListener("toggle", () => d.open ? CL_OPEN.add(d.dataset.g) : CL_OPEN.delete(d.dataset.g)));
+}
+document.addEventListener("change", async e => {
+  const id = e.target.dataset && e.target.dataset.cl;
+  if (!id) return;
+  await post("/api/checklist", {id, done: e.target.checked});
+  loadDashboard();
+});
+$$("#cl-filter button").forEach(b => b.onclick = () => { CL_FILTER = b.dataset.f; $$("#cl-filter button").forEach(x => x.classList.toggle("on", x === b)); renderChecklist(); });
+$("#mark-reviewed").onclick = async () => { await post("/api/reviewed", {}); loadDashboard(); };
+$("#dash-print").onclick = () => {
+  const closed = $$("#checklist details:not([open])"); closed.forEach(d => d.open = true);
+  document.body.classList.add("print-dash"); window.print(); document.body.classList.remove("print-dash");
+  closed.forEach(d => d.open = false);
+};
+const upHTML = u => `<div class="list-item" data-id="${u.id}"><div class="meta"><span class="badge ${u.kind === "comments" ? "b-info" : "b-stricter"}">${u.kind === "comments" ? "Comments due" : "Takes effect"} ${fmt(u.due)}</span><span class="${daysUntil(u.due) <= 30 ? "soon" : ""}">${inDays(u.due)}</span><span class="pill">${esc(sname(u.jurisdiction))}</span><span>${esc(u.item_type)}</span></div><div>${esc(u.title)}</div></div>`;
+const changeHTML = (c, fresh) => `<div class="list-item ${fresh ? "is-new" : ""}" data-id="${c.id}"><div class="meta"><span class="badge b-${c.change_type}">${c.change_type === "new" ? "New" : "Changed"} ${fmt(c.changed_at)}</span><span class="pill">${esc(sname(c.jurisdiction))}</span><span>${esc(c.item_type)}</span><span>${esc(c.category)}</span></div><div>${esc(c.title)}</div>${c.detail ? `<pre class="small" style="white-space:pre-wrap;margin:6px 0 0;max-height:7.5em;overflow:hidden">${esc(c.detail.slice(0, 400))}</pre>` : ""}</div>`;
+
+/* ---------- search ---------- */
+function searchParams(extra = {}) {
+  const s = $("#state").value;
+  const p = {q:$("#q").value, category:$("#category").value, type:$("#type").value, days:$("#days").value, sort:$("#sort").value};
+  if (s === "MINE") { p.states = PROFILE.states.join(","); p.federal = $("#federal").checked ? "1" : ""; }
+  else if (s) { p.state = s; p.federal = s !== "US" && $("#federal").checked ? "1" : ""; }
+  if ($("#applies").checked && PROFILE.employees) p.employees = PROFILE.employees;
+  return new URLSearchParams({...p, ...extra});
+}
+async function search() {
+  const data = await api("/api/search?" + searchParams({limit:LIMIT, offset}));
+  if (data.error) { $("#results").innerHTML = `<p>${esc(data.error)}</p>`; return; }
+  const s = $("#state").value;
+  const where = s === "MINE" ? "your states" : s ? sname(s) : "all jurisdictions";
+  $("#count").textContent = `${data.total} result${data.total === 1 ? "" : "s"} · ${where}${s && s !== "US" && $("#federal").checked ? " + federal" : ""}`;
+  $("#results").innerHTML = data.results.map(resultHTML).join("") || "<p>No matches. Try fewer words, another topic, or a broader jurisdiction.</p>";
+  $("#prev").disabled = offset === 0; $("#next").disabled = offset + LIMIT >= data.total;
+}
+
+/* ---------- compare ---------- */
+async function loadCompare() {
+  if (!CMP.length) CMP = PROFILE.states.slice(0, 4).length ? PROFILE.states.slice(0, 4) : ["CA"];
+  $$("#cmp-states .chip").forEach(c => c.classList.toggle("on", CMP.includes(c.dataset.s)));
+  const data = await api("/api/compare?states=" + CMP.join(","));
+  if (!data.length) { $("#cmp-table").innerHTML = ""; return; }
+  const rows = data[0].rows.map((r, i) => `<tr><td>${esc(r.topic)}</td><td><span class="badge b-federal">Federal</span><span class="cell-text">${esc(r.federal)}</span></td>` +
+    data.map(st => { const x = st.rows[i];
+      const body = x.ai
+        ? esc(clip(x.state, 300)) + `<span class="badge b-ai">AI summary, verify</span>` + (x.ai.quote ? `<blockquote class="quote">“${esc(clip(x.ai.quote, 260))}”</blockquote>` : "") +
+          `<a class="small" href="${esc(x.ai.url)}" target="_blank" rel="noopener">Official source</a> <button class="link small" data-id="${x.item_id}">Details</button>`
+        : x.status === "untracked"
+        ? (x.note ? `<span class="small muted">${esc(x.note)}.</span> ` : "") + `Not tracked automatically yet. Check ${st.contact.website ? `<a href="${esc(st.contact.website)}" target="_blank" rel="noopener">${esc(st.contact.agency || "the state labor department")}</a>` : "the state labor department"} or <a href="#search" data-topicsearch="${esc(r.topic)}" data-state="${st.state}">search</a>.`
+        : esc(clip(x.state, 240)) + (x.note ? `<br><span class="small muted">${esc(x.note)}</span>` : "") + (x.item_id ? ` <button class="link small" data-id="${x.item_id}">Details</button>` : "");
+      return `<td><span class="badge b-${x.status}">${STATUS[x.status]}</span><span class="cell-text">${body}</span></td>`; }).join("") + "</tr>").join("");
+  $("#cmp-table").innerHTML = `<tr><th>Topic</th><th>Federal</th>${data.map(s => `<th>${esc(s.name)}</th>`).join("")}</tr>` + rows;
+  const v = data.map(s => s.verified).filter(Boolean).sort()[0];
+  $("#cmp-verified").textContent = v ? `State figures from the U.S. Department of Labor's state law tables, verified ${fmt(v)}.` : "Run “Check for updates” to load state data.";
+  $("#cmp-extra").innerHTML = data.map(s => {
+    const years = Object.keys(s.min_wage_history).sort().reverse().slice(0, 8);
+    return `<div class="panel"><h2>${esc(s.name)}</h2>
+      ${s.contact.agency ? `<div class="kv"><span>Labor agency</span><span>${s.contact.website ? `<a href="${esc(s.contact.website)}" target="_blank" rel="noopener">${esc(s.contact.agency)}</a>` : esc(s.contact.agency)}</span></div>` : ""}
+      ${s.contact.phone ? `<div class="kv"><span>Phone</span><span>${esc(s.contact.phone)}</span></div>` : ""}
+      ${years.length ? `<p class="small muted" style="margin:10px 0 4px">Minimum wage history (DOL)</p><table>${years.map(y => `<tr><td>${y}</td><td>${esc(s.min_wage_history[y])}</td></tr>`).join("")}</table>` : ""}
+      <p class="small"><a href="#search" data-statesearch="${s.state}">All ${esc(s.name)} items</a></p></div>`;
+  }).join("");
+}
+
+/* ---------- other tabs ---------- */
+async function loadUpcoming() {
+  const rows = await api(`/api/upcoming?days=${$("#up-days").value}&states=${PROFILE.states.join(",")}`);
+  let month = "";
+  $("#upcoming").innerHTML = rows.map(u => { const m = new Date(u.due + "T12:00:00").toLocaleDateString(undefined, {month:"long", year:"numeric"});
+    const head = m !== month ? `<h3 style="margin:16px 0 4px;font-size:14px" class="muted">${m}</h3>` : ""; month = m; return head + upHTML(u); }).join("")
+    || `<p class="muted">Nothing scheduled in this window.</p>`;
+}
+async function loadSaved() {
+  const data = await api("/api/search?saved=1&sort=changed&limit=200");
+  $("#saved").innerHTML = data.results.map(resultHTML).join("") || `<p class="muted">Nothing saved yet. Click the ☆ next to any item.</p>`;
+}
+async function loadChanges() {
+  const mine = $("#ch-mine").checked && PROFILE.states.length;
+  const rows = await api("/api/changes?limit=150" + (mine ? "&states=" + PROFILE.states.join(",") : ""));
+  $("#changes").innerHTML = rows.map(c => changeHTML(c)).join("") || `<p class="muted">No changes recorded yet. The first check sets the baseline; later checks list what is new or changed.</p>`;
+}
+async function loadWatch() {
+  const rows = await api("/api/watch");
+  $("#watchlist").innerHTML = "<tr><th>Jurisdiction</th><th>Page</th><th></th></tr>" + rows.map(w =>
+    `<tr><td>${esc(sname(w.jurisdiction))}</td><td><a href="${esc(w.url)}" target="_blank" rel="noopener">${esc(w.label)}</a><br><span class="small muted">${esc(w.category)}${w.auto ? " · added automatically" : ""}</span></td>
+     <td><button data-del="${w.id}">Remove</button></td></tr>`).join("");
+}
+const AI_HELP = {gemini: ['Free key: <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>', "Paste your Gemini key"],
+  openai: ['Free key: <a href="https://console.groq.com/keys" target="_blank" rel="noopener">console.groq.com/keys</a>', "Paste your Groq key"],
+  ollama: ['Install from <a href="https://ollama.com" target="_blank" rel="noopener">ollama.com</a>, then run: ollama pull qwen2.5:7b', ""]};
+let AI = null;
+function aiForm() {
+  const p = $("#ai-provider").value, h = AI_HELP[p];
+  $("#ai-key-wrap").classList.toggle("hidden", !p || p === "ollama");
+  $("#ai-url-wrap").classList.toggle("hidden", p !== "openai" && p !== "ollama");
+  $("#ai-key-help").innerHTML = h ? h[0] : "";
+  if (p === "ollama") $("#ai-msg").innerHTML = h[0];
+  $("#ai-key").placeholder = AI && AI.has_key && AI.provider === p ? "Saved (leave blank to keep it)" : (h ? h[1] : "");
+  const d = AI && AI.defaults[p];
+  $("#ai-model").placeholder = d ? d.model : ""; $("#ai-url").placeholder = d ? d.base_url : "";
+}
+async function loadAI() {
+  AI = await api("/api/ai");
+  $("#ai-provider").value = AI.provider; $("#ai-scope").value = AI.scope || "mine";
+  const d = AI.defaults[AI.provider] || {};
+  $("#ai-model").value = AI.model && AI.model !== d.model ? AI.model : "";
+  $("#ai-url").value = AI.base_url && AI.base_url !== d.base_url ? AI.base_url : "";
+  $("#ai-key").value = ""; aiForm();
+  const r = AI.last_run;
+  $("#ai-msg").textContent = !AI.configured ? "AI research is off." :
+    r && !r.finished_at ? "AI research is running. It reads several pages per state, so it can take a few minutes." :
+    `${AI.found} of ${AI.checked} state topics answered from official pages so far.` + (r && r.error && !r.error.startsWith("skipped") ? " Last run: " + friendlyError(r.error.split("\n")[0]) : "") +
+    (r && (r.error || "").includes("Dashboard") ? " Pick your states on the Dashboard first." : "");
+}
+$("#ai-provider").onchange = aiForm;
+const aiSave = () => post("/api/ai", {provider: $("#ai-provider").value, scope: $("#ai-scope").value, api_key: $("#ai-key").value,
+  model: $("#ai-model").value, base_url: $("#ai-url").value}).then(loadAI);
+$("#ai-save").onclick = async () => { await aiSave(); $("#ai-msg").textContent = "Saved."; };
+$("#ai-test").onclick = async () => { await aiSave(); $("#ai-msg").textContent = "Testing…";
+  const r = await post("/api/ai/test", {}); $("#ai-msg").textContent = r.ok ? "Connected. The AI service works." : "Not working: " + (r.error || "unexpected reply"); };
+const aiRun = async recheck => { await aiSave(); if (!AI.configured) { $("#ai-msg").textContent = "Choose a service and enter its key first."; return; }
+  await post("/api/ai/run", {recheck}); $("#ai-msg").textContent = "AI research started. Results appear in Compare states as each state finishes.";
+  setTimeout(() => { loadRuns(); }, 3000); };
+$("#ai-run").onclick = () => aiRun(false);
+$("#ai-recheck").onclick = () => aiRun(true);
+
+function friendlyError(e) {
+  if (/403|Forbidden/.test(e)) return "the site blocks automated checks";
+  if (/CERTIFICATE|SSL/.test(e)) return "the site's security certificate has a problem";
+  if (/404|Not Found/.test(e)) return "the page no longer exists";
+  if (/timed out|timeout/i.test(e)) return "the site took too long to answer";
+  if (/urlopen|Name or service|getaddrinfo|refused/.test(e)) return "the site could not be reached";
+  return e.slice(0, 200);
+}
+/* "url: error; url: error" from a source -> a short summary plus an expandable list */
+function siteProblems(text) {
+  const parts = text.split(/; (?=https?:\/\/)/).map(p => { const m = p.match(/^(https?:\/\/\S+?):\s(.*)$/s); return m ? [m[1], m[2]] : [null, p]; });
+  const sites = parts.filter(p => p[0]);
+  if (!sites.length) return `<span class="muted">${esc(clip(text, 300))}</span>`;
+  const host = u => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch (_) { return u; } };
+  return `<details><summary class="muted">${sites.length} site${sites.length > 1 ? "s" : ""} could not be checked (some state sites block automated tools; this is normal)</summary><ul class="small muted">` +
+    sites.map(([u, e]) => `<li><a href="${esc(u)}" target="_blank" rel="noopener">${esc(host(u))}</a>: ${esc(friendlyError(e))}</li>`).join("") + "</ul></details>";
+}
+
+let RUNS_TIMER = null;
+async function loadRuns() {
+  if (!window.HRC_STATIC) loadAI();
+  META = await api("/api/meta");
+  $("#app-version").textContent = META.version ? "· app version " + META.version : "";
+  if (META.built_at) $("#static-note").textContent = `This phone and web version is refreshed automatically every day. Last refreshed ${new Date(META.built_at).toLocaleString()}.`;
+  const names = {federal_register:"Federal Register: federal rules and proposed rules", dol_state_tables:"U.S. DOL state law tables", legiscan:"LegiScan: state bills", page_watch:"Watched pages", ai_research:"AI research: paid sick leave, family leave, final pay"};
+  $("#runs").innerHTML = `<tr><th>Source</th><th>Last check</th><th>Result</th></tr>` + Object.keys(names).map(k => {
+    const r = META.last_runs.find(x => x.source === k);
+    if (!r) return `<tr><td>${names[k]}</td><td>Never</td><td></td></tr>`;
+    let res;
+    if (!r.finished_at) res = `<span class="muted">Checking now…</span>`;
+    else if ((r.error || "").startsWith("skipped: ")) res = `<span class="muted">Off: ${esc(r.error.slice(9))}</span>` +
+      (r.error.includes("Dashboard") ? ` <a href="#dashboard" data-goto="dashboard">Set my states</a>` : "");
+    else if (r.ok) res = (k === "page_watch"
+        ? (r.new_count ? `Started watching ${r.new_count} new page${r.new_count > 1 ? "s" : ""}. ` : "") + `${r.updated_count} changed since the last check`
+        : `${r.new_count} new, ${r.updated_count} updated`) + (r.error ? "<br>" + siteProblems(r.error) : "");
+    else res = `<span style="color:var(--red)">Could not check: ${esc(friendlyError(r.error.split("\n")[0]))}</span>`;
+    return `<tr><td>${names[k]}</td><td>${r.finished_at ? new Date(r.finished_at).toLocaleString() : "In progress"}</td><td class="small">${res}</td></tr>`;
+  }).join("") + `<tr><td colspan="3" class="small muted">${META.total} items in the database.</td></tr>`;
+  clearTimeout(RUNS_TIMER);  // keep the table live while a check is running
+  if (META.last_runs.some(r => !r.finished_at) && !$("#tab-sources").classList.contains("hidden")) RUNS_TIMER = setTimeout(loadRuns, 5000);
+}
+
+/* ---------- detail drawer ---------- */
+async function openItem(id) {
+  const r = await api("/api/item/" + id);
+  CURRENT = r;
+  const row = (k, v) => v ? `<tr><th>${k}</th><td>${v}</td></tr>` : "";
+  let cmp = "";
+  if (r.item_type === "State Requirement" && r.topic_key) {
+    const c = (await api("/api/compare?states=" + r.jurisdiction))[0];
+    const keys = r.topic_key === "min_wage" ? ["min_wage", "overtime"] : [r.topic_key];
+    const hits = c ? c.rows.filter(x => keys.includes(x.key)) : [];
+    if (hits.length) cmp = `<h3>Compared with federal law</h3><table>${hits.map(h => `<tr><th>${esc(h.topic)}</th><td><span class="badge b-${h.status}">${STATUS[h.status]}</span><br><b>Federal:</b> ${esc(h.federal)}<br><b>${esc(c.name)}:</b> ${esc(h.state)}${h.note ? `<br><span class="small muted">${esc(h.note)}</span>` : ""}</td></tr>`).join("")}</table>`;
+  }
+  $("#detail").innerHTML = `<h2 style="margin-top:0">${esc(r.title)}</h2>
+    <div class="meta"><span class="pill">${esc(sname(r.jurisdiction))}</span><span>${esc(r.item_type)}</span><span>${esc(r.category)}</span></div>
+    ${r.summary && r.summary !== r.body ? `<p>${esc(r.summary)}</p>` : ""}
+    <table>
+      ${row("Enacted", fmt(r.enacted_date))}${row("Effective", fmt(r.effective_date))}${row(r.item_type === "Bill" ? "Last action" : "Published", fmt(r.published_date))}
+      ${row("Comments due", fmt(r.comments_close_date))}${row("Status", esc(r.status))}
+      ${row("Who it covers", esc(r.coverage) || (r.min_employees ? r.min_employees + "+ employees" : ""))}
+      ${row("Required poster", r.poster_url ? `<a href="${esc(r.poster_url)}" target="_blank" rel="noopener">Download the official poster ↗</a>` : "")}
+      ${row("Record keeping", esc(r.recordkeeping))}
+      ${row("Citation", esc(r.citation))}${row("Agency / body", esc(r.agency))}
+      ${row("Source", r.url ? `<a href="${esc(r.url)}" target="_blank" rel="noopener">Open official source ↗</a>` : "")}
+      ${row("Tracked since", fmt(r.first_seen))}${row("Last verified", fmt(r.last_checked))}${wasUpdated(r) ? row("Last changed", fmt(r.last_changed)) : ""}
+    </table>
+    ${cmp}
+    ${r.body && r.body !== r.summary ? `<h3>Details</h3><div class="body">${esc(r.body)}</div>` : ""}
+    <h3>Your notes</h3><textarea id="d-note" rows="3" placeholder="e.g. Updated handbook section 4.2 on ${new Date().toLocaleDateString()}">${esc(r.bookmark_note)}</textarea>
+    <p><button id="d-note-save">Save note</button> <span id="d-note-ok" class="small muted"></span></p>
+    ${r.history.length ? `<h3>Change history</h3>${r.history.map(h => `<p><span class="badge b-${h.change_type}">${h.change_type === "new" ? "New" : "Changed"}</span> ${fmt(h.changed_at)}</p>${h.detail ? `<pre>${esc(h.detail)}</pre>` : ""}`).join("")}` : ""}`;
+  $("#d-star").textContent = r.saved ? "★ Saved" : "☆ Save";
+  $("#drawer").classList.add("open");
+  $("#d-note-save").onclick = async () => { await post("/api/bookmark", {id:r.id, note:$("#d-note").value}); r.saved = true; $("#d-star").textContent = "★ Saved"; $("#d-note-ok").textContent = "Saved"; };
+}
+async function toggleStar(id, on) { await post("/api/bookmark", {id, remove:on}); }
+
+/* ---------- navigation and events ---------- */
+function tab(name) {
+  $$("nav a").forEach(a => a.classList.toggle("on", a.dataset.tab === name));
+  $$("main > section").forEach(s => s.classList.toggle("hidden", s.id !== "tab-" + name));
+  ({dashboard:loadDashboard, search, compare:loadCompare, upcoming:loadUpcoming, saved:loadSaved, changes:loadChanges, watch:loadWatch, sources:loadRuns})[name]?.();
+}
+function go(name) { location.hash = name; tab(name); }
+
+async function init() {
+  [META, PROFILE] = await Promise.all([api("/api/meta"), api("/api/profile")]);
+  const opts = Object.entries(META.states).sort((a, b) => a[1].localeCompare(b[1]));
+  for (const [c, n] of opts) $("#state").insertAdjacentHTML("beforeend", `<option value="${c}">${esc(n)}</option>`);
+  $("#w-jur").innerHTML = `<option value="US">Federal</option>` + opts.map(([c, n]) => `<option value="${c}">${esc(n)}</option>`).join("");
+  const cats = [...new Set([...TOPICS, ...META.categories])];
+  for (const c of cats) $("#category").insertAdjacentHTML("beforeend", `<option>${esc(c)}</option>`);
+  $("#w-cat").innerHTML = cats.map(c => `<option>${esc(c)}</option>`).join("");
+  for (const t of META.types) $("#type").insertAdjacentHTML("beforeend", `<option>${esc(t)}</option>`);
+  const chips = opts.map(([c, n]) => `<span class="chip" data-s="${c}" title="${esc(n)}">${c}</span>`).join("");
+  $("#p-states").innerHTML = chips; $("#cmp-states").innerHTML = chips;
+  if (PROFILE.states.length) $("#state").value = "MINE";
+  renderProfileChip();
+  if (matchMedia("(max-width:900px)").matches) $("#filters").open = false;
+  tab(location.hash.slice(1) || "dashboard");
+}
+
+$$("nav a").forEach(a => a.onclick = e => { e.preventDefault(); go(a.dataset.tab); });
+const doSearch = () => { offset = 0; go("search"); };
+$("#go").onclick = doSearch; $("#q").onkeydown = e => { if (e.key === "Enter") doSearch(); };
+["#state", "#category", "#type", "#days", "#federal", "#applies", "#sort"].forEach(s => $(s).onchange = () => { offset = 0; search(); });
+$("#prev").onclick = () => { offset = Math.max(0, offset - LIMIT); search(); };
+$("#next").onclick = () => { offset += LIMIT; search(); };
+if (window.HRC_STATIC && /iPhone|iPad|iPod/.test(navigator.userAgent) && !navigator.standalone) {
+  let off = false; try { off = localStorage.getItem("hrc:install-tip") === "off"; } catch (_) {}
+  if (!off) $("#install-tip").classList.remove("hidden");
+}
+$("#install-close").onclick = () => { $("#install-tip").classList.add("hidden"); try { localStorage.setItem("hrc:install-tip", "off"); } catch (_) {} };
+const download = p => window.HRC_DOWNLOAD ? window.HRC_DOWNLOAD(p) : (location.href = p);
+$("#export").onclick = () => download("/api/export.csv?" + searchParams());
+$("#export-saved").onclick = () => download("/api/export.csv?saved=1");
+$("#ics").onclick = e => { if (window.HRC_DOWNLOAD) { e.preventDefault(); window.HRC_DOWNLOAD($("#ics").getAttribute("href")); } };
+$("#up-days").onchange = loadUpcoming;
+$("#ch-mine").onchange = loadChanges;
+$("#profile-chip").onclick = () => { go("dashboard"); openSetup(true); };
+$("#edit-profile").onclick = () => openSetup(true);
+$("#p-cancel").onclick = () => openSetup(false);
+$("#p-states").onclick = e => { const c = e.target.closest(".chip"); if (c) c.classList.toggle("on"); };
+$("#cmp-states").onclick = e => { const c = e.target.closest(".chip"); if (!c) return;
+  const s = c.dataset.s; CMP = CMP.includes(s) ? CMP.filter(x => x !== s) : [...CMP, s].slice(-4); if (!CMP.length) CMP = [s]; loadCompare(); };
+$("#p-save").onclick = async () => {
+  if (!$$("#p-states .chip.on").length) { $("#p-msg").textContent = "Click at least one state first."; return; }
+  $("#p-msg").textContent = "";
+  PROFILE = await post("/api/profile", {company:$("#p-company").value, employees:$("#p-employees").value,
+    states:$$("#p-states .chip.on").map(c => c.dataset.s)});
+  if (PROFILE.states.length) { $("#state").value = "MINE"; CMP = []; }
+  renderProfileChip(); loadDashboard();
+};
+document.body.addEventListener("click", async e => {
+  const star = e.target.closest("[data-star]");
+  if (star) { const on = star.classList.contains("on"); await toggleStar(+star.dataset.star, on);
+    star.classList.toggle("on", !on); star.textContent = on ? "☆" : "★"; if (!$("#tab-saved").classList.contains("hidden")) loadSaved(); return; }
+  const cmp = e.target.closest("[data-compare]");
+  if (cmp) { e.preventDefault(); CMP = [cmp.dataset.compare]; go("compare"); return; }
+  const ss = e.target.closest("[data-statesearch]");
+  if (ss) { e.preventDefault(); $("#state").value = ss.dataset.statesearch; $("#q").value = ""; offset = 0; go("search"); return; }
+  const ts = e.target.closest("[data-topicsearch]");
+  if (ts) { e.preventDefault(); $("#state").value = ts.dataset.state; $("#q").value = ts.dataset.topicsearch.replace(/ and .*/, ""); offset = 0; go("search"); return; }
+  const g = e.target.closest("[data-goto]");
+  if (g) { e.preventDefault(); go(g.dataset.goto); return; }
+  const item = e.target.closest("[data-id]");
+  if (item && !e.target.closest("#drawer .drawer-actions")) openItem(item.dataset.id);
+});
+$("#close").onclick = () => $("#drawer").classList.remove("open");
+$("#d-print").onclick = () => window.print();
+$("#d-star").onclick = async () => { if (!CURRENT) return; await toggleStar(CURRENT.id, CURRENT.saved); CURRENT.saved = !CURRENT.saved; $("#d-star").textContent = CURRENT.saved ? "★ Saved" : "☆ Save"; };
+$("#refresh").onclick = async () => { await post("/api/refresh", {}); $("#refresh").textContent = "Checking…"; setTimeout(() => { $("#refresh").textContent = "Check for updates"; go("sources"); }, 4000); };
+$("#watchform").onsubmit = async e => { e.preventDefault();
+  const res = await post("/api/watch", {jurisdiction:$("#w-jur").value, label:$("#w-label").value, url:$("#w-url").value, category:$("#w-cat").value});
+  if (res.error) alert(res.error); else { e.target.reset(); loadWatch(); } };
+$("#watchlist").onclick = async e => { const id = e.target.dataset.del; if (id) { await api("/api/watch/" + id, {method:"DELETE"}); loadWatch(); } };
+init();
+</script>
+</body>
+</html>
